@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, synonym
 from sqlalchemy import (Column, String)
 from models.base_model_mixin import BaseModelMixin
+from datetime import datetime
 import unittest
 
 Base = declarative_base()
@@ -12,6 +13,8 @@ engine = create_engine('mysql://root@localhost/test_db',
 
 class TestModel(BaseModelMixin, Base):
     __tablename__ = 'test_model'
+    test_model_id = synonym("id")
+    test_model_pid = synonym("public_id")
     test_field = Column(String(36), nullable=True, default='')
 
 
@@ -52,8 +55,8 @@ class TestBaseModelMixin(unittest.TestCase):
         record = TestModel.create(params=params, session=self.session)
         self.session.commit()
 
-        self.assertEqual(1, record.internal_id)
-        self.assertIsNot(None, record.public_id)
+        self.assertEqual(1, record.test_model_id)
+        self.assertIsNot(None, record.test_model_id)
         self.assertEqual("test_data", record.test_field)
-        self.assertIsNot(None, record.created_at)
+        self.assertTrue(isinstance(record.created_at, datetime))
         self.assertEqual(False, record.deleted)

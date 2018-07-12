@@ -56,41 +56,20 @@ class BaseModelMixin(object):
                         server_default=text("CURRENT_TIMESTAMP ON \
                                              UPDATE CURRENT_TIMESTAMP"))
     updated_by = Column(String(36), nullable=True, default='')
-    deleted = Column(Boolean, default=False)
     deleted_at = Column(TIMESTAMP, nullable=True,
                         server_default=text("NULL"))
     deleted_by = Column(String(36), nullable=True, default='')
     deleted = Column(Boolean, default=False)
 
     @declared_attr
-    def internal_id(cls):
-        """Generate internal id.
-
-        Generate internal id for a specific table.
-        internal id is prepended by "tablename_"
-
-        example:
-
-            user_id
-
-        """
-        internal_id = "{tablename}_id".format(tablename=cls.__tablename__)
-        return Column(internal_id, Integer, primary_key=True)
+    def id(cls):
+        column_prefixed = "{tablename}_id".format(tablename=cls.__tablename__)
+        return Column(column_prefixed, Integer, primary_key=True)
 
     @declared_attr
     def public_id(cls):
-        """Generate public id.
-
-        Generate public id for a specific table.
-        public id is prepended by "tablename_"
-
-        example:
-
-            user_pid
-
-        """
-        public_id = "{tablename}_pid".format(tablename=cls.__tablename__)
-        return Column(public_id, String(36), default=uuid.uuid4().hex)
+        column_prefixed = "{tablename}_pid".format(tablename=cls.__tablename__)
+        return Column(column_prefixed, String(36), default=uuid.uuid4().hex)
 
     @classmethod
     def get_by_id(cls, id, session):
